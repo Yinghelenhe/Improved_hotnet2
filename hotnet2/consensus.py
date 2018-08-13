@@ -14,27 +14,28 @@ def count_consensus(consensus, sizes=HN2_STATS_SIZES):
 
 def consensus_with_stats(args, networks, heats, verbose=0):
     # Run with the input heat
-    single_runs, consensus, linkers, auto_deltas = consensus_run( args, networks, heats, verbose )
+    """Change here, add the single_permuted_sub_score_delta output"""
+    single_runs, single_My_results, consensus, linkers, auto_deltas = consensus_run( args, networks, heats, verbose )
 
     # Generate permuted heats
     np = args.consensus_permutations
     permuted_single_runs = defaultdict(list)
     for (infmat, indexToGene, G, nname, pnp), (heat, hname) in product(networks, heats):
         # 1) Filter the heat scores
-        # 1a) Remove genes not in the network
+        # 1a) Remove enes not in the network
         heat = filter_heat_to_network_genes(heat, set(indexToGene.values()), verbose)
 
         # 1b) Genes with score 0 cannot be in output components, but are eligible for heat in permutations
         heat, addtl_genes = filter_heat(heat, None, False, 'There are ## genes with heat score 0')
 
         for permutation in permute_heat(heat, indexToGene.values(), np, addtl_genes, args.num_cores):
-            result = run_helper(args, infmat, indexToGene, G, nname, pnp, heat, hname, addtl_genes, get_deltas_hotnet2, HN2_INFMAT_NAME, HN2_MAX_CC_SIZES, verbose=verbose)
+            result,Myresult = run_helper(args, infmat, indexToGene, G, nname, pnp, heat, hname, addtl_genes, get_deltas_hotnet2, HN2_INFMAT_NAME, HN2_MAX_CC_SIZES, verbose=verbose)
             permuted_single_runs[(hname, nname)].append(result)
 
     # Run consensus to compute observed statistics
     network_heat_pairs = permuted_single_runs.keys()
     permuted_counts = []
-    for i in range(np):
+    for i in range(args.heat_permutations):
         runs = [ (n, h, permuted_single_runs[(n, h)][i]) for n, h in network_heat_pairs ]
         permuted_consensus, _, _ = identify_consensus( runs, verbose=verbose )
         permuted_counts.append(count_consensus(permuted_consensus))
@@ -51,11 +52,25 @@ def consensus_with_stats(args, networks, heats, verbose=0):
             pval     = sum(1. for p in empirical if p >= count )/np
         consensus_stats[k] = dict(observed=count, expected=expected, pval=pval)
 
-    return single_runs, consensus, linkers, auto_deltas, consensus_stats
+    return single_runs,single_My_results, consensus, linkers, auto_deltas, consensus_stats
 
 def consensus_run(args, networks, heats, verbose):
     # Perform the single runs
     single_runs = []
+    """Change from here"""
+    #single_permuted_sub_score_delta = []
+    #single_subnet_score_delta = []
+    #single_Alpha_sig_delta = []
+    #signle_Subnet_sig_delta = []
+    #single_Conp_sig_delta = []
+    #single_sig_Count_delta = []
+    #single_sig_Conp_delta = []
+    #single_degree_delta = []
+    #single_permuted_degree_delta = []
+    #single_cent_weighted_score_delta = []
+    #single_degree_weighted_score_delta = []
+    single_My_results = []
+    """end here"""
     for (infmat, indexToGene, G, nname, pnp), (heat, hname) in product(networks, heats):
         # Simple progress bar
         if args.verbose > 0: print '\t-', nname, hname
@@ -70,13 +85,27 @@ def consensus_run(args, networks, heats, verbose):
         if args.verbose > 1:
             print "\t\t- Loaded '%s' heat scores for %s genes" % (hname, len(heat))
 
-        result = run_helper(args, infmat, indexToGene, G, nname, pnp, heat, hname, addtl_genes, get_deltas_hotnet2, HN2_INFMAT_NAME, HN2_MAX_CC_SIZES, args.verbose)
+        result, My_results = run_helper(args, infmat, indexToGene, G, nname, pnp, heat, hname, addtl_genes, get_deltas_hotnet2, HN2_INFMAT_NAME, HN2_MAX_CC_SIZES, args.verbose)
+        
         single_runs.append( (nname, hname, result) )
-
+        single_My_results.append((nname, hname,My_results))
+        """Change from here"""
+        #single_permuted_sub_score_delta.append((nname, hname,permuted_sub_score_delta))
+        #single_subnet_score_delta.append((nname, hname,subnet_geneScore_delta))
+        #single_Alpha_sig_delta.append((nname, hname,Alpha_sig_delta))
+        #signle_Subnet_sig_delta.append((nname, hname,Subnet_sig_delta))
+        #single_Conp_sig_delta.append((nname, hname,Conp_sig_delta))
+        #single_sig_Conp_delta.append((nname, hname,sig_Conp_delta))
+        #single_sig_Count_delta.append((nname, hname,sig_Count_delta))
+        #single_degree_delta.append((nname,hname,degree_delta))
+        #single_permuted_degree_delta.append((nname,hname,permuted_degree_delta))
+        #single_cent_weighted_score_delta.append((nname,hname,cent_weighted_score_delta))
+        #single_degree_weighted_score_delta.append((nname,hname,degree_weighted_score_delta))
+        """End here"""
     # Perform the consensus
     consensus, linkers, auto_deltas = identify_consensus( single_runs, verbose=verbose )
-
-    return single_runs, consensus, linkers, auto_deltas
+    #print single_degree_delta
+    return single_runs, single_My_results, consensus, linkers, auto_deltas
 
 def identify_consensus(single_runs, pval_threshold=0.01, min_cc_size=2, verbose=0):
     if verbose > 0: print '* Constructing HotNet(2) consensus network...'

@@ -4,6 +4,7 @@ import multiprocessing as mp
 import networkx as nx
 import hotnet2 as hn
 import hnio
+#import My_Function as my
 
 strong_ccs = nx.strongly_connected_components
 
@@ -24,6 +25,7 @@ def significance_wrapper((infmat, index2gene, heat_permutation, delta, sizes, di
     G = hn.weighted_graph(sim, index2gene, delta, directed)
     return num_components_min_size(G, sizes)
 
+
 def network_significance_wrapper((network_path, infmat_name, index2gene, heat, delta, sizes, directed)):
     permuted_mat = np.asarray(hnio.load_hdf5(network_path)[infmat_name], dtype=np.float32)
     sim, index2gene = hn.similarity_matrix(permuted_mat, index2gene, heat, directed)
@@ -31,7 +33,7 @@ def network_significance_wrapper((network_path, infmat_name, index2gene, heat, d
     return num_components_min_size(G, sizes)
 
 def calculate_permuted_cc_counts_network(network_paths, infmat_name, index2gene, heat, delta,
-                                         sizes=range(2,11), directed=True, num_cores=1):
+                                         sizes=range(2,16), directed=True, num_cores=1):
     """Return a dict mapping a CC size to a list of the number of CCs of that size or greater in
     each permutation.
     """
@@ -57,7 +59,7 @@ def calculate_permuted_cc_counts_network(network_paths, infmat_name, index2gene,
     return size2counts
 
 def calculate_permuted_cc_counts(infmat, index2gene, heat_permutations, delta,
-                                 sizes=range(2,11), directed=True, num_cores=1):
+                                 sizes=range(2,16), directed=True, num_cores=1):
     """Return a dict mapping a CC size to a list of the number of CCs of that size or greater in
     each permutation.
 
@@ -91,7 +93,8 @@ def calculate_permuted_cc_counts(infmat, index2gene, heat_permutations, delta,
     size2counts = defaultdict(list)
     for counts in all_counts:
         for size, count in zip(sizes, counts): size2counts[size].append(count)
-
+    
+    
     return size2counts
 
 def compute_statistics(size2counts_real, size2counts_permuted, num_permutations):

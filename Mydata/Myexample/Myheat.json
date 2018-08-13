@@ -1,0 +1,20 @@
+{
+    "heat": {
+        "A": 1.0, 
+        "C": 1.0, 
+        "B": 1.0, 
+        "E": 0.93, 
+        "D": 1.0, 
+        "G": 0.98, 
+        "F": 0.9, 
+        "H": 0.999
+    }, 
+    "parameters": {
+        "name": "Myheat", 
+        "gene_filter_file": null, 
+        "heat_file": "Mydata/Myexample/Myheat.tsv", 
+        "output_file": "Mydata/Myexample/Myheat.json", 
+        "min_heat_score": 0, 
+        "heat_fn": "load_direct_heat"
+    }
+}

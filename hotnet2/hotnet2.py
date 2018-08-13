@@ -93,8 +93,12 @@ def connected_components(G, min_size=1):
     min_size -- minimum size for connected components included in the returned component list
 
     """
+    #print G.degree()
+    #print
     ccs = nx.strongly_connected_components(G) if isinstance(G, nx.DiGraph) else nx.connected_components(G)
+    #print G.degree(list(ccs))
     ccs = [cc for cc in ccs if len(cc) >= min_size]
+    
     return ccs
 
 def component_sizes(ccs):

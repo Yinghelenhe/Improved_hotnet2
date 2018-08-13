@@ -44,7 +44,7 @@ def find_best_delta_by_largest_cc(permuted_sim, permuted_index, sizes, directed,
         # print "\t\tk=", max_size
         delta = -1
         index = round(len(sorted_edges)* start_quant)
-        left, right = 0., float(len(sorted_edges))      #TODO: why are these floats rather than ints?
+        left, right = 0., float(len(sorted_edges)-1)      #TODO: why are these floats rather than ints?
         visited = []
 
         while len(visited) < 100:
@@ -52,7 +52,7 @@ def find_best_delta_by_largest_cc(permuted_sim, permuted_index, sizes, directed,
             # print "(%s)" % format(sorted_edges[int(index)], 'g')
 
             # construct graph using new delta
-            delta = sorted_edges[int(index)]
+            delta = sorted_edges[int(min(max(index,left),right))]
             G = hn.weighted_graph(permuted_sim, permuted_index, delta, directed)
             if delta in visited:
                 size2delta[max_size] = delta
